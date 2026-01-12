@@ -14,6 +14,7 @@ class MovieController extends Controller
 
     public function index(Request $request)
     {
+        $baseQuery = Movie::query();
         $query = Movie::with('genre');
 
          if ($request->filled('search')) {
@@ -28,6 +29,8 @@ class MovieController extends Controller
             $query->where('genre_id', $request->genre_filter);
         }
 
+        $totalMovies = $baseQuery->count();
+        $filteredMovies = $query->count(); 
         $movieCount = Movie::count();
         $genreCount = Genre::count();
 

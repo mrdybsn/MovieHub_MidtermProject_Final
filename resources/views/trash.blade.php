@@ -95,7 +95,7 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             @if($movie->genre)
-                                                <span class="px-3 py-1 bg-[#9B7BB5]/20 text-[#9B7BB5] rounded-full text-xs font-medium border border-[#9B7BB5]/30">
+                                                <span class="inline-flex items-center px-3 py-1 whitespace-nowrap bg-[#9B7BB5]/20 text-[#9B7BB5] rounded-full text-xs font-medium border border-[#9B7BB5]/30">
                                                     {{ $movie->genre->name }}
                                                 </span>
                                             @else
