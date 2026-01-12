@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('imdb_id')->unique()->nullable();
             $table->integer('release_year');
             $table->string('director');
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

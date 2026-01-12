@@ -20,6 +20,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/movies', [MovieController::class, 'store'])->name('movies.store');
     Route::put('/movies/{movie}', [MovieController::class, 'update'])->name('movies.update');
     Route::delete('/movies/{movie}', [MovieController::class, 'destroy'])->name('movies.destroy');
+
+    Route::get('/movies/trash', [MovieController::class, 'trash'])->name('movies.trash');
+    Route::post('/movies/{id}/restore', [MovieController::class, 'restore'])->name('movies.restore');
+    Route::delete('/movies/{id}/force-delete', [MovieController::class, 'forceDelete'])->name('movies.force-delete');
+    
+    // Export
+    Route::get('/movies/export', [MovieController::class, 'export'])->name('movies.export');
 });
 
 // Genre routes - CRUD operations

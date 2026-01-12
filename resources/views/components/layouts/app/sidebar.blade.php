@@ -43,6 +43,15 @@
                         class="rounded-lg transition-all hover:bg-[#7B68A8]/10 data-[current]:bg-gradient-to-r data-[current]:from-[#9B7BB5] data-[current]:to-[#7B68A8] data-[current]:text-white">
                         {{ __('Genres') }}
                     </flux:navlist.item>
+
+                    <flux:navlist.item
+                        icon="trash"
+                        :href="route('movies.trash')"
+                        :current="request()->routeIs('movies.trash')"
+                        wire:navigate
+                        class="rounded-lg transition-all hover:bg-[#7B68A8]/10 data-[current]:bg-gradient-to-r data-[current]:from-[#9B7BB5] data-[current]:to-[#7B68A8] data-[current]:text-white">
+                        {{ __('Trash') }}
+                    </flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

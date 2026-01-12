@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Dashboard')">
+<x-layouts.app :title="__('MovieHub - Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl p-6">
 
         <!-- Success Message -->
@@ -69,6 +69,21 @@
         <!-- Movie Management Section -->
         <div class="relative flex-1 overflow-hidden rounded-2xl bg-[#2C2654]/50 backdrop-blur-sm border border-[#4A3F73]/50">
             <div class="flex h-full flex-col p-8">
+                
+                <!-- Export Button -->
+                <div class="mb-4 flex justify-end">
+                    <form method="GET" action="{{ route('movies.export') }}" class="inline">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                        <input type="hidden" name="genre_filter" value="{{ request('genre_filter') }}">
+                        <button type="submit" class="flex items-center gap-2 rounded-lg bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-medium text-white transition-all shadow-lg hover:shadow-green-600/50">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export to PDF
+                        </button>
+                    </form>
+                </div>
+
                 <!-- Add New Movie Form -->
                 <div class="mb-8 rounded-xl bg-gradient-to-br from-[#2C2654]/80 to-[#1A1539]/80 p-8 border border-[#4A3F73]/50 backdrop-blur-sm">
                     <div class="flex items-center gap-3 mb-6">
@@ -80,7 +95,7 @@
                         <h2 class="text-2xl font-bold text-white">Add New Movie</h2>
                     </div>
 
-                    <form action="{{ route('movies.store') }}" method="POST" class="grid gap-6 md:grid-cols-2">
+                    <form action="{{ route('movies.store') }}" method="POST" enctype="multipart/form-data" class="grid gap-6 md:grid-cols-2">
                         @csrf
 
                         <div>
@@ -136,6 +151,16 @@
                         </div>
 
                         <div class="md:col-span-2">
+                            <label class="mb-2 block text-sm font-medium text-gray-300">Movie Poster (Optional)</label>
+                            <input type="file" name="photo" accept="image/jpeg,image/png,image/jpg"
+                                   class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white file:mr-4 file:rounded-md file:border-0 file:bg-[#9B7BB5] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#7B68A8] transition-all">
+                            <p class="mt-1 text-xs text-gray-400">JPG, PNG or JPEG. Max 2MB.</p>
+                            @error('photo')
+                                <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
                             <label class="mb-2 block text-sm font-medium text-gray-300">Description</label>
                             <textarea name="description" rows="3" placeholder="Enter movie description" required 
                                       class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white placeholder-gray-500 focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20 transition-all">{{ old('description') }}</textarea>
@@ -155,6 +180,37 @@
                     </form>
                 </div>
 
+                <!-- Search & Filter Section -->
+                <div class="mb-8 rounded-xl bg-gradient-to-br from-[#2C2654]/80 to-[#1A1539]/80 p-6 border border-[#4A3F73]/50 backdrop-blur-sm">
+                    <h2 class="mb-4 text-lg font-semibold text-white">Search & Filter Movies</h2>
+                    <form action="{{ route('dashboard') }}" method="GET" class="grid gap-4 md:grid-cols-3">
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-300">Search</label>
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by title or director"
+                                   class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-2 text-white placeholder-gray-500 focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20 transition-all">
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-300">Filter by Genre</label>
+                            <select name="genre_filter" class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-2 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20 transition-all">
+                                <option value="">All Genres</option>
+                                @foreach($genres as $genre)
+                                    <option value="{{ $genre->id }}" {{ request('genre_filter') == $genre->id ? 'selected' : '' }}>
+                                        {{ $genre->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="flex-1 rounded-lg bg-[#9B7BB5] hover:bg-[#7B68A8] px-4 py-2 text-sm font-medium text-white transition-all">
+                                Apply Filters
+                            </button>
+                            <a href="{{ route('dashboard') }}" class="rounded-lg border border-[#4A3F73] px-4 py-2 text-sm font-medium text-gray-300 hover:bg-[#4A3F73]/30 transition-all">
+                                Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Movie List -->
                 <div class="flex-1 overflow-auto">
                     <div class="flex items-center justify-between mb-6">
@@ -170,6 +226,7 @@
                                 <tr class="bg-[#1A1539]/50 border-b border-[#4A3F73]">
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-300 w-12"></th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-300">#</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-300">Poster</th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-300">Title</th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-300">IMDB ID</th>
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-300">Director</th>
@@ -187,6 +244,17 @@
                                             </svg>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-400">{{ $loop->iteration }}</td>
+                                        <td class="px-6 py-4">
+                                            @if($movie->photo)
+                                                <img src="{{ Storage::url($movie->photo) }}" alt="{{ $movie->title }}" class="h-16 w-12 rounded object-cover ring-2 ring-[#9B7BB5]/30">
+                                            @else
+                                                <div class="h-16 w-12 rounded bg-gradient-to-br from-[#7B68A8] to-[#5B4D87] flex items-center justify-center">
+                                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4 text-sm font-medium text-white">{{ $movie->title }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-300">
                                             @if($movie->imdb_id)
@@ -201,28 +269,31 @@
                                         <td class="px-6 py-4 text-sm text-gray-300">{{ $movie->release_year }}</td>
                                         <td class="px-6 py-4 text-sm">
                                             @if($movie->genre)
-                                                <span class="px-3 py-1 bg-[#9B7BB5]/20 text-[#9B7BB5] rounded-full text-xs font-medium border border-[#9B7BB5]/30">
-                                                    {{ $movie->genre->name }}
-                                                </span>
+                                                
+                                            <span class="inline-flex items-center px-3 py-1 whitespace-nowrap bg-[#9B7BB5]/20 text-[#9B7BB5] rounded-full text-xs font-medium border border-[#9B7BB5]/30">
+                                                {{ $movie->genre->name }}
+                                            </span>
+
                                             @else
                                                 <span class="text-gray-500">N/A</span>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-center" onclick="event.stopPropagation()">
-                                            <button onclick="editMovie({{ $movie->id }}, '{{ addslashes($movie->title) }}', '{{ addslashes($movie->imdb_id ?? '') }}', '{{ addslashes($movie->director) }}', {{ $movie->release_year }}, '{{ addslashes($movie->description) }}', {{ $movie->genre_id ?? 'null' }})"
+                                        <<td class="px-6 py-4 text-sm text-center whitespace-nowrap" onclick="event.stopPropagation()">
+                                            <div class="flex items-center justify-center gap-2">
+                                            <button onclick="editMovie({{ $movie->id }},@js($movie->title),@js($movie->imdb_id),@js($movie->director),{{ $movie->release_year }},@js($movie->description),@js($movie->genre_id),@js($movie->photo))"
                                                     class="text-[#9B7BB5] hover:text-[#7B68A8] transition-colors font-medium">
                                                 Edit
                                             </button>
                                             <span class="mx-2 text-[#4A3F73]">|</span>
-                                            <form action="{{ route('movies.destroy', $movie) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this movie?')">
+                                            <form action="{{ route('movies.destroy', $movie) }}" method="POST" class="inline" onsubmit="return confirm('Move this movie to trash?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-400 hover:text-red-300 transition-colors font-medium">Delete</button>
+                                                <button type="submit" class="text-red-400 hover:text-red-300 transition-colors font-medium">Trash</button>
                                             </form>
                                         </td>
                                     </tr>
                                     <tr id="movie-detail-{{ $movie->id }}" class="hidden bg-[#1A1539]/50">
-                                        <td colspan="8" class="px-6 py-6">
+                                        <td colspan="9" class="px-6 py-6">
                                             <div class="rounded-lg bg-[#2C2654]/50 p-6 border border-[#4A3F73]/50">
                                                 <h4 class="text-lg font-semibold text-white mb-3">Description</h4>
                                                 <p class="text-gray-300 leading-relaxed">{{ $movie->description }}</p>
@@ -231,7 +302,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="px-6 py-12 text-center">
+                                        <td colspan="9" class="px-6 py-12 text-center">
                                             <div class="flex flex-col items-center gap-3">
                                                 <div class="w-16 h-16 bg-[#4A3F73]/50 rounded-full flex items-center justify-center">
                                                     <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,12 +324,12 @@
 
     <!-- Edit Movie Modal -->
     <div id="editMovieModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-        <div class="w-full max-w-2xl rounded-2xl bg-[#2C2654] border border-[#4A3F73] shadow-2xl overflow-hidden">
+        <div class="w-full max-w-2xl rounded-2xl bg-[#2C2654] border border-[#4A3F73] shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-gradient-to-r from-[#9B7BB5] to-[#7B68A8] p-6">
                 <h2 class="text-2xl font-bold text-white">Edit Movie</h2>
             </div>
 
-            <form id="editMovieForm" method="POST" class="p-8">
+            <<form id="editMovieForm" method="POST" enctype="multipart/form-data" class="p-8 overflow-y-auto scrollbar-thin scrollbar-thumb-[#7B68A8] scrollbar-track-[#1A1539]">
                 @csrf
                 @method('PUT')
 
@@ -267,40 +338,28 @@
                         <label class="mb-2 block text-sm font-medium text-gray-300">Title</label>
                         <input type="text" id="edit_title" name="title" required
                                class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20">
-                        @error('title')
-                            <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-300">IMDB ID (Optional)</label>
+                        <label class="mb-2 block text-sm font-medium text-gray-300">IMDB ID</label>
                         <input type="text" id="edit_imdb_id" name="imdb_id" placeholder="e.g., tt1234567"
-                               class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white placeholder-gray-500 focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20">
-                        @error('imdb_id')
-                            <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                        @enderror
+                               class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20">
                     </div>
 
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-300">Director</label>
                         <input type="text" id="edit_director" name="director" required
                                class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20">
-                        @error('director')
-                            <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-300">Release Year</label>
                         <input type="number" id="edit_release_year" name="release_year" required
                                class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20">
-                        @error('release_year')
-                            <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-medium text-gray-300">Genre (Optional)</label>
+                        <label class="mb-2 block text-sm font-medium text-gray-300">Genre</label>
                         <select id="edit_genre_id" name="genre_id"
                                 class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20">
                             <option value="">Select a genre</option>
@@ -308,18 +367,20 @@
                                 <option value="{{ $genre->id }}">{{ $genre->name }}</option>
                             @endforeach
                         </select>
-                        @error('genre_id')
-                            <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                        @enderror
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="mb-2 block text-sm font-medium text-gray-300">Movie Poster</label>
+                        <div id="currentPhotoPreview" class="mb-3"></div>
+                        <input type="file" id="edit_photo" name="photo" accept="image/jpeg,image/png,image/jpg"
+                               class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white file:mr-4 file:rounded-md file:border-0 file:bg-[#9B7BB5] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#7B68A8]">
+                        <p class="mt-1 text-xs text-gray-400">Leave empty to keep current poster. JPG, PNG or JPEG. Max 2MB.</p>
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="mb-2 block text-sm font-medium text-gray-300">Description</label>
                         <textarea id="edit_description" name="description" rows="3" required
                                   class="w-full rounded-lg bg-[#1A1539]/50 border border-[#4A3F73] px-4 py-3 text-white focus:border-[#9B7BB5] focus:outline-none focus:ring-2 focus:ring-[#9B7BB5]/20"></textarea>
-                        @error('description')
-                            <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 
@@ -338,7 +399,6 @@
     </div>
 
     <script>
-        // Auto-hide success message after 3 seconds
         document.addEventListener('DOMContentLoaded', function() {
             const successMessage = document.getElementById('successMessage');
             if (successMessage) {
@@ -351,7 +411,6 @@
             }
         });
 
-        // Toggle movie row expansion
         function toggleMovieRow(id) {
             const detailRow = document.getElementById(`movie-detail-${id}`);
             const icon = document.getElementById(`expand-icon-${id}`);
@@ -365,35 +424,65 @@
             }
         }
 
-        function editMovie(id, title, imdbId, director, releaseYear, description, genreId) {
-            document.getElementById('editMovieModal').classList.remove('hidden');
-            document.getElementById('editMovieModal').classList.add('flex');
-            document.getElementById('editMovieForm').action = `/movies/${id}`;
-            document.getElementById('edit_title').value = title;
-            document.getElementById('edit_imdb_id').value = imdbId || '';
-            document.getElementById('edit_director').value = director;
-            document.getElementById('edit_release_year').value = releaseYear;
-            document.getElementById('edit_description').value = description;
-            document.getElementById('edit_genre_id').value = genreId || '';
+        function editMovie(id, title, imdbId, director, releaseYear, description, genreId, photo) {
+        const modal = document.getElementById('editMovieModal');
+        const form = document.getElementById('editMovieForm');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // Set form action
+        form.action = `/movies/${id}`;
+
+        // Fill inputs
+        document.getElementById('edit_title').value = title;
+        document.getElementById('edit_imdb_id').value = imdbId || '';
+        document.getElementById('edit_director').value = director;
+        document.getElementById('edit_release_year').value = releaseYear;
+        document.getElementById('edit_description').value = description;
+        document.getElementById('edit_genre_id').value = genreId || '';
+
+        // Photo preview
+        const photoPreview = document.getElementById('currentPhotoPreview');
+        photoPreview.innerHTML = ''; // clear previous
+
+        if (photo) {
+            photoPreview.innerHTML = `
+                <div class="flex items-center gap-3 rounded-lg border border-[#4A3F73] p-3 bg-[#1A1539]/50">
+                    <img src="/storage/${photo}" class="h-24 w-16 rounded object-cover">
+                    <div>
+                        <p class="text-sm font-medium text-gray-300">Current Poster</p>
+                        <p class="text-xs text-gray-400">Upload new poster to replace</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            photoPreview.innerHTML = `
+                <div class="rounded-lg border border-dashed border-[#4A3F73] p-4 text-center bg-[#1A1539]/30">
+                    <p class="text-sm text-gray-400">No poster uploaded</p>
+                </div>
+            `;
         }
+    }
 
-        function closeEditMovieModal() {
-            document.getElementById('editMovieModal').classList.add('hidden');
-            document.getElementById('editMovieModal').classList.remove('flex');
+    function closeEditMovieModal() {
+        const modal = document.getElementById('editMovieModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    // Close when clicking outside
+    document.getElementById('editMovieModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeEditMovieModal();
         }
+    });
 
-        // Close modal on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeEditMovieModal();
-            }
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('editMovieModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditMovieModal();
-            }
-        });
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeEditMovieModal();
+        }
+    });
     </script>
 </x-layouts.app>

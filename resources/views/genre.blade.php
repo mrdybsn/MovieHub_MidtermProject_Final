@@ -1,4 +1,4 @@
-<x-layouts.app :title="__('Genres')">
+<x-layouts.app :title="__('MovieHub - Genres')">
     <div class="flex h-full w-full flex-1 flex-col gap-6 rounded-xl p-6">
 
         @if(session('success'))
